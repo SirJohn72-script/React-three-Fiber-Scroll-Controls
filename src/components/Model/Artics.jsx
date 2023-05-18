@@ -7,11 +7,13 @@ import {
   useGLTF,
   OrbitControls,
   useScroll,
+  Html,
 } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as dat from "dat.gui";
 import * as THREE from "three";
 import gsap from "gsap";
+import Labels from "./Labels";
 
 export function Artics(props) {
   const { nodes, materials } = useGLTF(
@@ -42,6 +44,13 @@ export function Artics(props) {
   const inside2Ref = useRef();
   const padRightRef = useRef();
   const hornRightRef = useRef();
+
+  const page_1_ref = useRef();
+  const page_2_ref = useRef();
+  const page_3_ref = useRef();
+  const page_4_ref = useRef();
+  const page_5_ref = useRef();
+  const page_6_ref = useRef();
 
   useLayoutEffect(() => {
     //timeline
@@ -235,6 +244,21 @@ export function Artics(props) {
   }, []);
 
   useLayoutEffect(() => {
+    const page_1 = window.document.getElementById("page-1");
+    const page_2 = window.document.getElementById("page-2");
+    const page_3 = window.document.getElementById("page-3");
+    const page_4 = window.document.getElementById("page-4");
+    const page_5 = window.document.getElementById("page-5");
+    const page_6 = window.document.getElementById("page-6");
+    page_1_ref.current = page_1;
+    page_2_ref.current = page_2;
+    page_3_ref.current = page_3;
+    page_4_ref.current = page_4;
+    page_5_ref.current = page_5;
+    page_6_ref.current = page_6;
+  }, []);
+
+  useLayoutEffect(() => {
     timeline.current = gsap.timeline();
     timeline.current.to(generalGroup.current.position, {
       x: 0,
@@ -244,6 +268,14 @@ export function Artics(props) {
 
     // Init animation - Diadema
     timeline.current
+      .to(
+        page_1_ref.current,
+        {
+          opacity: 0,
+          duration: 0.3,
+        },
+        0.8
+      )
       .to(
         controls.current.target,
         {
@@ -276,6 +308,14 @@ export function Artics(props) {
         {
           transparent: true,
           opacity: 0.2,
+          duration: 0.3,
+        },
+        1.2
+      )
+      .to(
+        page_2_ref.current,
+        {
+          opacity: 1,
           duration: 0.8,
         },
         1.3
@@ -298,6 +338,22 @@ export function Artics(props) {
           transparent: true,
           opacity: 1,
           duration: 0.8,
+        },
+        2.3
+      )
+      .to(
+        page_2_ref.current,
+        {
+          opacity: 0,
+          duration: 0.3,
+        },
+        2.1
+      )
+      .to(
+        page_3_ref.current,
+        {
+          opacity: 1,
+          duration: 0.3,
         },
         2.3
       )
@@ -353,7 +409,7 @@ export function Artics(props) {
           z: -0.1356,
           duration: 0.8,
         },
-        2.3
+        2.1
       );
 
     //third animation - battery
@@ -369,6 +425,14 @@ export function Artics(props) {
         3
       )
       .to(
+        page_3_ref.current,
+        {
+          opacity: 0,
+          duration: 0.3,
+        },
+        3.2
+      )
+      .to(
         camera.position,
         {
           x: 0,
@@ -381,7 +445,7 @@ export function Artics(props) {
       .to(
         camera,
         {
-          zoom: 3.1,
+          zoom: 2.5,
           duration: 0.8,
           onUpdate: () => {
             camera.updateProjectionMatrix();
@@ -398,6 +462,14 @@ export function Artics(props) {
           duration: 0.8,
         },
         3
+      )
+      .to(
+        page_4_ref.current,
+        {
+          opacity: 1,
+          duration: 0.6,
+        },
+        3.2
       )
       .to(
         coverLeftRef.current.material,
@@ -419,6 +491,14 @@ export function Artics(props) {
           duration: 0.8,
         },
         4.3
+      )
+      .to(
+        page_4_ref.current,
+        {
+          opacity: 0,
+          duration: 0.3,
+        },
+        4.1
       )
       .to(
         controls.current.target,
@@ -492,6 +572,14 @@ export function Artics(props) {
         4.8
       )
       .to(
+        page_5_ref.current,
+        {
+          opacity: 1,
+          duration: 0.3,
+        },
+        4.6
+      )
+      .to(
         inside2Ref.current.position,
         {
           x: 0.99,
@@ -505,6 +593,16 @@ export function Artics(props) {
     // Fifth animation - Logo
     timeline.current
       .to(
+        innerTapRef.current.position,
+        {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.8,
+        },
+        5.6
+      )
+      .to(
         rightTapRef.current.position,
         {
           x: 0,
@@ -515,14 +613,12 @@ export function Artics(props) {
         5.6
       )
       .to(
-        innerTapRef.current.position,
+        page_5_ref.current,
         {
-          x: 0,
-          y: 0,
-          z: 0,
-          duration: 0.8,
+          opacity: 0,
+          duration: 0.3,
         },
-        5.6
+        5.8
       )
       .to(
         inside1Ref.current.position,
@@ -542,7 +638,7 @@ export function Artics(props) {
           z: 0,
           duration: 0.8,
         },
-        5.2
+        5.6
       )
       .to(
         controls.current.target,
@@ -584,6 +680,14 @@ export function Artics(props) {
           duration: 0.8,
         },
         5.9
+      )
+      .to(
+        page_6_ref.current,
+        {
+          opacity: 1,
+          duration: 0.3,
+        },
+        6.2
       );
   }, []);
 
@@ -732,6 +836,7 @@ export function Artics(props) {
           ref={padRightRef}
         />
       </group>
+
       {/* <mesh ref={controlsPivot}>
         <boxGeometry args={[0.2, 0.2, 0.2]} />
         <meshNormalMaterial />
@@ -742,6 +847,8 @@ export function Artics(props) {
         enableZoom={false}
         minAzimuthAngle={-Math.PI / 12}
         maxAzimuthAngle={Math.PI / 12}
+        minPolarAngle={Math.PI * 0.2}
+        maxPolarAngle={Math.PI * 0.6}
         enablePan={false}
       />
     </>
