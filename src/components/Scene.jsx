@@ -4,7 +4,7 @@ import {
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import React from "react";
-import { Artics } from "../Model/Artics";
+import { Artics } from "./Artics";
 
 export default function Scene() {
   return (

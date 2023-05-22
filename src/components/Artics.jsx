@@ -1,36 +1,30 @@
-import React, { useRef, useLayoutEffect } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import {
-  useGLTF,
   OrbitControls,
+  useGLTF,
   useScroll,
 } from "@react-three/drei";
-import { useThree, useFrame } from "@react-three/fiber";
-import { ScrollTimeline } from "./Helpers";
+import { useFrame, useThree } from "@react-three/fiber";
+import gsap from "gsap";
 
 export function Artics(props) {
   const { nodes, materials } = useGLTF(
     "/models/Artics.glb"
   );
 
-  // Camera
-  const camera = useThree((state) => state.camera);
+  // animations control
+  const scrollControl = useScroll();
+  const timeline = useRef();
 
-  // gsap
-  const scrollTimeline = new ScrollTimeline();
-  const scrollControls = useScroll();
-
-  //References
-  const controls = useRef();
-
-  // Mesh References
-  const generalGroup = useRef();
-  const headbandRef = useRef();
+  // meshes ref
+  const generalGroupRef = useRef();
   const coverLeftRef = useRef();
-
   const rightCoverRef = useRef();
   const rightCoverInnerRef = useRef();
   const inside1Ref = useRef();
   const inside2Ref = useRef();
+  const controls = useRef();
+  const camera = useThree((state) => state.camera);
 
   // Html div references
   const page_1_ref = useRef();
@@ -50,9 +44,10 @@ export function Artics(props) {
   }, []);
 
   useLayoutEffect(() => {
-    let AnimationsData = [];
+    timeline.current = gsap.timeline();
 
-    // Fist Animation - Headband
+    // headband animations
+    let AnimationsData = [];
     const HeadbandAnimations = [
       {
         // Html div
@@ -73,7 +68,6 @@ export function Artics(props) {
         },
         timelinePoint: 1.3,
       },
-
       // Controls, Camera, Camera zoom
       {
         objectToAnimate: controls.current.target,
@@ -111,8 +105,8 @@ export function Artics(props) {
       ...HeadbandAnimations,
     ];
 
-    // Second Animation - Sounds Controls
-    const DataSoundControlsAnimations = [
+    //sounds controls
+    const SoundControlsAnimations = [
       // Restore previous animations
       {
         objectToAnimate: page_2_ref.current,
@@ -162,10 +156,11 @@ export function Artics(props) {
             camera.updateProjectionMatrix();
           },
         },
+        timelinePoint: 2.3,
       },
       // General group
       {
-        objectToAnimate: generalGroup.current.rotation,
+        objectToAnimate: generalGroupRef.current.rotation,
         properties: {
           x: -0.38311,
           y: 0.16447,
@@ -177,10 +172,10 @@ export function Artics(props) {
     ];
     AnimationsData = [
       ...AnimationsData,
-      ...DataSoundControlsAnimations,
+      ...SoundControlsAnimations,
     ];
 
-    //third animation - Battery
+    //Battery
     const BatteryAnimations = [
       // Restore previous animations
       {
@@ -201,7 +196,6 @@ export function Artics(props) {
         },
         timelinePoint: 3.3,
       },
-
       // controls, camera, camera zoom
       {
         objectToAnimate: controls.current.target,
@@ -236,7 +230,7 @@ export function Artics(props) {
       },
       // General groups
       {
-        objectToAnimate: generalGroup.current.rotation,
+        objectToAnimate: generalGroupRef.current.rotation,
         properties: {
           x: 0,
           y: 1.59699,
@@ -262,17 +256,9 @@ export function Artics(props) {
       ...BatteryAnimations,
     ];
 
-    // fourth animation - Construction
+    // Construction
     const ConstructionAnimations = [
-      // Reset previous animations
-      {
-        objectToAnimate: page_4_ref.current,
-        properties: {
-          opacity: 0,
-          duration: 0.3,
-        },
-        timelinePoint: 4.1,
-      },
+      // Restore previous animations
       {
         objectToAnimate: coverLeftRef.current.material,
         properties: {
@@ -282,7 +268,14 @@ export function Artics(props) {
         },
         timelinePoint: 4.3,
       },
-
+      {
+        objectToAnimate: page_4_ref.current,
+        properties: {
+          opacity: 0,
+          duration: 0.3,
+        },
+        timelinePoint: 4.1,
+      },
       // Html div
       {
         objectToAnimate: page_5_ref.current,
@@ -292,7 +285,6 @@ export function Artics(props) {
         },
         timelinePoint: 4.6,
       },
-
       // Controls, Camera and Camera Zoom
       {
         objectToAnimate: controls.current.target,
@@ -328,7 +320,7 @@ export function Artics(props) {
 
       // General group
       {
-        objectToAnimate: generalGroup.current.rotation,
+        objectToAnimate: generalGroupRef.current.rotation,
         properties: {
           x: 0.21692,
           y: -0.52559,
@@ -386,20 +378,9 @@ export function Artics(props) {
       ...ConstructionAnimations,
     ];
 
-    // Fifth Animations - Brand Logo
+    // Brand logo animation
     const BrandLogoAnimations = [
-      // Reset previous animations
-      // Html div
-      {
-        objectToAnimate: page_5_ref.current,
-        properties: {
-          opacity: 0,
-          duration: 0.3,
-        },
-        timelinePoint: 5.8,
-      },
-
-      // Animations
+      // Restore previous animations
       {
         objectToAnimate: rightCoverRef.current.position,
         properties: {
@@ -441,9 +422,14 @@ export function Artics(props) {
         },
         timelinePoint: 5.6,
       },
-
-      // Current Animations
-      // Html div
+      {
+        objectToAnimate: page_5_ref.current,
+        properties: {
+          opacity: 0,
+          duration: 0.3,
+        },
+        timelinePoint: 5.8,
+      },
       {
         objectToAnimate: page_6_ref.current,
         properties: {
@@ -452,6 +438,7 @@ export function Artics(props) {
         },
         timelinePoint: 6.2,
       },
+
       // Controls, Camera, Camera zoom
       {
         objectToAnimate: controls.current.target,
@@ -486,7 +473,7 @@ export function Artics(props) {
       },
       //General group
       {
-        objectToAnimate: generalGroup.current.rotation,
+        objectToAnimate: generalGroupRef.current.rotation,
         properties: {
           x: 0,
           y: 1.30195,
@@ -502,32 +489,52 @@ export function Artics(props) {
     ];
 
     AnimationsData.map((animation) => {
-      scrollTimeline.addAnimation(
+      timeline.current.to(
         animation.objectToAnimate,
-        animation.properties,
+        {
+          ...animation.properties,
+        },
         animation.timelinePoint
       );
     });
   }, []);
 
   useFrame(() => {
-    scrollTimeline
-      .getTimeline()
-      .seek(
-        scrollControls.offset *
-          scrollTimeline.getTimeline().duration()
-      );
+    timeline.current.seek(
+      scrollControl.offset * timeline.current.duration()
+    );
   });
 
   return (
     <>
-      <group {...props} dispose={null} ref={generalGroup}>
+      <group
+        {...props}
+        dispose={null}
+        ref={generalGroupRef}>
         <mesh
-          name='Battery'
+          name='Inside_2'
           castShadow
           receiveShadow
-          geometry={nodes.Battery.geometry}
-          material={nodes.Battery.material}
+          geometry={nodes.Inside_2.geometry}
+          material={materials.Orage_Mertallic}
+          position={[0.01, 0, 0]}
+          ref={inside2Ref}
+        />
+        <mesh
+          name='Sounds'
+          castShadow
+          receiveShadow
+          geometry={nodes.Sounds.geometry}
+          material={materials.Orange_Plastic}
+        />
+        <mesh
+          name='Inside_1'
+          castShadow
+          receiveShadow
+          geometry={nodes.Inside_1.geometry}
+          material={materials.Blue_Metallic}
+          position={[0.01, 0, 0]}
+          ref={inside1Ref}
         />
         <mesh
           name='Neon'
@@ -537,11 +544,11 @@ export function Artics(props) {
           material={materials.Material}
         />
         <mesh
-          name='Sounds'
+          name='Battery'
           castShadow
           receiveShadow
-          geometry={nodes.Sounds.geometry}
-          material={materials.Orange_Plastic}
+          geometry={nodes.Battery.geometry}
+          material={materials.Battery_Texture}
         />
         <mesh
           name='Cylinders'
@@ -558,51 +565,11 @@ export function Artics(props) {
           material={materials.ArticsMaterial}
         />
         <mesh
-          name='Supports'
-          castShadow
-          receiveShadow
-          geometry={nodes.Supports.geometry}
-          material={materials.ArticsMaterial}
-        />
-        <mesh
-          name='Cover_Right'
-          castShadow
-          receiveShadow
-          geometry={nodes.Cover_Right.geometry}
-          material={materials.ArticsMaterial}
-          ref={rightCoverRef}
-        />
-        <mesh
-          name='Brand'
-          castShadow
-          receiveShadow
-          geometry={nodes.Brand.geometry}
-          material={materials.ArticsMaterial}
-        />
-        <mesh
           name='Headband_Inner'
           castShadow
           receiveShadow
           geometry={nodes.Headband_Inner.geometry}
           material={materials.ArticsMaterial}
-        />
-        <mesh
-          name='Inside_1'
-          castShadow
-          receiveShadow
-          geometry={nodes.Inside_1.geometry}
-          material={materials.Blue_Metallic}
-          position={[0.01, 0, 0]}
-          ref={inside1Ref}
-        />
-        <mesh
-          name='Inside_2'
-          castShadow
-          receiveShadow
-          geometry={nodes.Inside_2.geometry}
-          material={materials.Orage_Mertallic}
-          position={[0.01, 0, 0]}
-          ref={inside2Ref}
         />
         <mesh
           name='Battery_Holder'
@@ -630,12 +597,33 @@ export function Artics(props) {
           ref={rightCoverInnerRef}
         />
         <mesh
+          name='Supports'
+          castShadow
+          receiveShadow
+          geometry={nodes.Supports.geometry}
+          material={materials.ArticsMaterial}
+        />
+        <mesh
+          name='Cover_Right'
+          castShadow
+          receiveShadow
+          geometry={nodes.Cover_Right.geometry}
+          material={materials.ArticsMaterial}
+          ref={rightCoverRef}
+        />
+        <mesh
+          name='Brand'
+          castShadow
+          receiveShadow
+          geometry={nodes.Brand.geometry}
+          material={materials.ArticsMaterial}
+        />
+        <mesh
           name='Headband_outter'
           castShadow
           receiveShadow
           geometry={nodes.Headband_outter.geometry}
           material={materials.ArticsMaterial_Headband}
-          ref={headbandRef}
         />
         <mesh
           name='Cover_Left'
@@ -647,20 +635,7 @@ export function Artics(props) {
         />
       </group>
 
-      {/* <mesh ref={controlsPivot}>
-        <boxGeometry args={[0.2, 0.2, 0.2]} />
-        <meshNormalMaterial />
-      </mesh> */}
-      <OrbitControls
-        makeDefault
-        ref={controls}
-        enableZoom={false}
-        minAzimuthAngle={-Math.PI / 12}
-        maxAzimuthAngle={Math.PI / 12}
-        minPolarAngle={Math.PI * 0.2}
-        maxPolarAngle={Math.PI * 0.6}
-        enablePan={false}
-      />
+      <OrbitControls enableZoom={false} ref={controls} />
     </>
   );
 }

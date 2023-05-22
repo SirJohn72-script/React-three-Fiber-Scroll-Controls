@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import Scene from "./components/Scene/Scene";
 import "./App.css";
-import Labels from "./components/Model/Labels";
+import Labels from "./components/Labels";
+import Scene from "./components/Scene";
 
 function App() {
   return (
