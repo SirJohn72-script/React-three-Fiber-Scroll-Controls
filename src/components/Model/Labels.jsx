@@ -11,7 +11,7 @@ export default function Labels() {
         </div>
         <div
           id='page-2'
-          className='page page--diadema page--hidden'>
+          className='page page--headband page--hidden'>
           <h1 className='message'>Headband</h1>
           <p className='message--sub'>
             Lorem ipsum dolor, sit amet consectetur
@@ -50,7 +50,7 @@ export default function Labels() {
         </div>
         <div
           id='page-6'
-          className='page page--contact page--hidden'>
+          className='page page--brandlogo page--hidden'>
           <h1 className='message'>Get yours!</h1>
           <button className='comprar'>Buy now</button>
         </div>

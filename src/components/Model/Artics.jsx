@@ -1,19 +1,11 @@
-import React, {
-  useRef,
-  useEffect,
-  useLayoutEffect,
-} from "react";
+import React, { useRef, useLayoutEffect } from "react";
 import {
   useGLTF,
   OrbitControls,
   useScroll,
-  Html,
 } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
-import * as dat from "dat.gui";
-import * as THREE from "three";
-import gsap from "gsap";
-import Labels from "./Labels";
+import { ScrollTimeline } from "./Helpers";
 
 export function Artics(props) {
   const { nodes, materials } = useGLTF(
@@ -21,30 +13,26 @@ export function Artics(props) {
   );
 
   // Camera
-  const gui = new dat.GUI({ width: 400 });
   const camera = useThree((state) => state.camera);
 
   // gsap
-  const timeline = useRef();
-  const scroll = useScroll();
+  const scrollTimeline = new ScrollTimeline();
+  const scrollControls = useScroll();
 
   //References
   const controls = useRef();
-  const controlsPivot = useRef();
 
-  // mesh refs
+  // Mesh References
   const generalGroup = useRef();
-  const diademaTop1Ref = useRef();
-  const diademaTop2Ref = useRef();
+  const headbandRef = useRef();
   const coverLeftRef = useRef();
 
-  const rightTapRef = useRef();
-  const innerTapRef = useRef();
+  const rightCoverRef = useRef();
+  const rightCoverInnerRef = useRef();
   const inside1Ref = useRef();
   const inside2Ref = useRef();
-  const padRightRef = useRef();
-  const hornRightRef = useRef();
 
+  // Html div references
   const page_1_ref = useRef();
   const page_2_ref = useRef();
   const page_3_ref = useRef();
@@ -53,787 +41,609 @@ export function Artics(props) {
   const page_6_ref = useRef();
 
   useLayoutEffect(() => {
-    //timeline
-    timeline.current = gsap.timeline();
-
-    // Controls
-    const controlFolder = gui.addFolder("Controls");
-    controlFolder
-      .add(controls.current.target, "x", -10, 10, 0.0001)
-      .onChange((x) => {
-        controlsPivot.current.position.x = x;
-      });
-    controlFolder
-      .add(controls.current.target, "z", -10, 10, 0.0001)
-      .onChange((z) => {
-        controlsPivot.current.position.z = z;
-      });
-    controlFolder
-      .add(controls.current.target, "y", -10, 10, 0.0001)
-      .onChange((y) => {
-        controlsPivot.current.position.y = y;
-      });
-
-    //  Camera
-    const cameraFolder = gui.addFolder("Camera");
-    cameraFolder
-      .add(camera.position, "x", -30, 30, 0.0001)
-      .onChange((x) => {
-        camera.position.x = x;
-      });
-    cameraFolder
-      .add(camera.position, "z", -30, 30, 0.0001)
-      .onChange((z) => {
-        camera.position.z = z;
-      });
-    cameraFolder
-      .add(camera.position, "y", -30, 30, 0.0001)
-      .onChange((y) => {
-        camera.position.y = y;
-      });
-
-    cameraFolder
-      .add(camera, "zoom", 1, 4, 0.0001)
-      .onChange(() => {
-        camera.updateProjectionMatrix();
-      });
-
-    const generalGroupFolder =
-      gui.addFolder("General Group");
-    generalGroupFolder.add(
-      generalGroup.current.rotation,
-      "x",
-      -Math.PI * 2,
-      Math.PI * 2,
-      0.00001
-    );
-    generalGroupFolder.add(
-      generalGroup.current.rotation,
-      "y",
-      -Math.PI * 2,
-      Math.PI * 2,
-      0.00001
-    );
-    generalGroupFolder.add(
-      generalGroup.current.rotation,
-      "z",
-      -Math.PI * 2,
-      Math.PI * 2,
-      0.00001
-    );
-
-    const coverLeftFolder = gui.addFolder("Cover Left");
-    coverLeftFolder.add(
-      coverLeftRef.current.position,
-      "x",
-      -20,
-      20,
-      0.00001
-    );
-    coverLeftFolder.add(
-      coverLeftRef.current.position,
-      "y",
-      -20,
-      20,
-      0.00001
-    );
-    coverLeftFolder.add(
-      coverLeftRef.current.position,
-      "z",
-      -20,
-      20,
-      0.00001
-    );
-
-    //
-    const others = gui.addFolder("others");
-    others.add(
-      rightTapRef.current.position,
-      "x",
-      -10,
-      20,
-      0.00001
-    );
-
-    others.add(
-      rightTapRef.current.position,
-      "y",
-      -10,
-      20,
-      0.00001
-    );
-
-    others.add(
-      innerTapRef.current.position,
-      "x",
-      -10,
-      20,
-      0.00001
-    );
-    others.add(
-      innerTapRef.current.position,
-      "y",
-      -10,
-      20,
-      0.00001
-    );
-
-    others.add(
-      inside1Ref.current.position,
-      "x",
-      -10,
-      20,
-      0.00001
-    );
-    others.add(
-      inside1Ref.current.position,
-      "y",
-      -10,
-      20,
-      0.00001
-    );
-
-    others.add(
-      inside2Ref.current.position,
-      "x",
-      -10,
-      20,
-      0.00001
-    );
-    others.add(
-      inside2Ref.current.position,
-      "y",
-      -10,
-      20,
-      0.00001
-    );
-
-    others.add(
-      padRightRef.current.position,
-      "x",
-      -10,
-      20,
-      0.00001
-    );
-    others.add(
-      padRightRef.current.position,
-      "y",
-      -10,
-      20,
-      0.00001
-    );
-
-    others.add(
-      hornRightRef.current.position,
-      "x",
-      -10,
-      20,
-      0.00001
-    );
-    others.add(
-      hornRightRef.current.position,
-      "y",
-      -10,
-      20,
-      0.00001
-    );
-
-    return () => {
-      gui.destroy();
-    };
+    page_1_ref.current = document.getElementById("page-1");
+    page_2_ref.current = document.getElementById("page-2");
+    page_3_ref.current = document.getElementById("page-3");
+    page_4_ref.current = document.getElementById("page-4");
+    page_5_ref.current = document.getElementById("page-5");
+    page_6_ref.current = document.getElementById("page-6");
   }, []);
 
   useLayoutEffect(() => {
-    const page_1 = window.document.getElementById("page-1");
-    const page_2 = window.document.getElementById("page-2");
-    const page_3 = window.document.getElementById("page-3");
-    const page_4 = window.document.getElementById("page-4");
-    const page_5 = window.document.getElementById("page-5");
-    const page_6 = window.document.getElementById("page-6");
-    page_1_ref.current = page_1;
-    page_2_ref.current = page_2;
-    page_3_ref.current = page_3;
-    page_4_ref.current = page_4;
-    page_5_ref.current = page_5;
-    page_6_ref.current = page_6;
-  }, []);
+    let AnimationsData = [];
 
-  useLayoutEffect(() => {
-    timeline.current = gsap.timeline();
-    timeline.current.to(generalGroup.current.position, {
-      x: 0,
-      y: 0,
-      z: 0,
-    });
-
-    // Init animation - Diadema
-    timeline.current
-      .to(
-        page_1_ref.current,
-        {
+    // Fist Animation - Headband
+    const HeadbandAnimations = [
+      {
+        // Html div
+        // Restore previous animations
+        objectToAnimate: page_1_ref.current,
+        properties: {
           opacity: 0,
           duration: 0.3,
         },
-        0.8
-      )
-      .to(
-        controls.current.target,
-        {
+        timelinePoint: 0.5,
+      },
+      // html div
+      {
+        objectToAnimate: page_2_ref.current,
+        properties: {
+          opacity: 1,
+          duration: 0.8,
+        },
+        timelinePoint: 1.3,
+      },
+
+      // Controls, Camera, Camera zoom
+      {
+        objectToAnimate: controls.current.target,
+        properties: {
           y: 3.0974,
+          x: 0,
+          z: 0,
+        },
+        timelinePoint: 0.8,
+      },
+      {
+        objectToAnimate: camera.position,
+        properties: {
+          x: 0,
+          y: 6.6097,
+          z: 8.3,
           duration: 0.8,
         },
-        1
-      )
-      .to(
-        camera.position,
-        {
-          y: 6.6098,
-          duration: 0.8,
-        },
-        1
-      )
-      .to(
-        camera,
-        {
+        timelinePoint: 1,
+      },
+      {
+        objectToAnimate: camera,
+        properties: {
           zoom: 2.5,
           duration: 0.8,
           onUpdate: () => {
             camera.updateProjectionMatrix();
           },
         },
-        1
-      )
-      .to(
-        diademaTop1Ref.current.material,
-        {
-          transparent: true,
-          opacity: 0.2,
-          duration: 0.3,
-        },
-        1.2
-      )
-      .to(
-        page_2_ref.current,
-        {
-          opacity: 1,
-          duration: 0.8,
-        },
-        1.3
-      )
-      .to(
-        diademaTop2Ref.current.material,
-        {
-          transparent: true,
-          opacity: 0.2,
-          duration: 0.8,
-        },
-        1.3
-      );
+        timelinePoint: 1,
+      },
+    ];
+    AnimationsData = [
+      ...AnimationsData,
+      ...HeadbandAnimations,
+    ];
 
-    //Second animation - Sound controls
-    timeline.current
-      .to(
-        diademaTop1Ref.current.material,
-        {
-          transparent: true,
-          opacity: 1,
-          duration: 0.8,
-        },
-        2.3
-      )
-      .to(
-        page_2_ref.current,
-        {
+    // Second Animation - Sounds Controls
+    const DataSoundControlsAnimations = [
+      // Restore previous animations
+      {
+        objectToAnimate: page_2_ref.current,
+        properties: {
           opacity: 0,
           duration: 0.3,
         },
-        2.1
-      )
-      .to(
-        page_3_ref.current,
-        {
+        timelinePoint: 2.1,
+      },
+
+      //html div
+      {
+        objectToAnimate: page_3_ref.current,
+        properties: {
           opacity: 1,
           duration: 0.3,
         },
-        2.3
-      )
-      .to(
-        diademaTop2Ref.current.material,
-        {
-          transparent: true,
-          opacity: 1,
-          duration: 0.8,
-        },
-        2.3
-      )
-      .to(
-        controls.current.target,
-        {
+        timelinePoint: 2.3,
+      },
+      // Controls, camera, camera zoom
+      {
+        objectToAnimate: controls.current.target,
+        properties: {
           x: -1.5761,
           y: -1.3143,
           z: 0,
           duration: 0.8,
-          onStart: () => {
-            diademaTop1Ref.current.material.opacity = 1;
-            diademaTop2Ref.current.material.opacity = 1;
-          },
         },
-        2
-      )
-      .to(
-        camera.position,
-        {
+        timelinePoint: 2,
+      },
+      {
+        objectToAnimate: camera.position,
+        properties: {
           x: 0,
           y: 0,
           z: 8.3,
           duration: 0.8,
         },
-        2
-      )
-      .to(
-        camera,
-        {
+        timelinePoint: 2,
+      },
+      {
+        objectToAnimate: camera,
+        properties: {
           zoom: 2,
-          duration: 0.8,
+          duration: 0.3,
           onUpdate: () => {
             camera.updateProjectionMatrix();
           },
         },
-        2.3
-      )
-      .to(
-        generalGroup.current.rotation,
-        {
+      },
+      // General group
+      {
+        objectToAnimate: generalGroup.current.rotation,
+        properties: {
           x: -0.38311,
           y: 0.16447,
           z: -0.1356,
           duration: 0.8,
         },
-        2.1
-      );
+        timelinePoint: 2.1,
+      },
+    ];
+    AnimationsData = [
+      ...AnimationsData,
+      ...DataSoundControlsAnimations,
+    ];
 
-    //third animation - battery
-    timeline.current
-      .to(
-        controls.current.target,
-        {
+    //third animation - Battery
+    const BatteryAnimations = [
+      // Restore previous animations
+      {
+        objectToAnimate: page_3_ref.current,
+        properties: {
+          opacity: 0,
+          duration: 0.3,
+        },
+        timelinePoint: 3.2,
+      },
+
+      //html div
+      {
+        objectToAnimate: page_4_ref.current,
+        properties: {
+          opacity: 1,
+          duration: 0.3,
+        },
+        timelinePoint: 3.3,
+      },
+
+      // controls, camera, camera zoom
+      {
+        objectToAnimate: controls.current.target,
+        properties: {
           x: 0,
           y: 0,
           z: 0,
           duration: 0.8,
         },
-        3
-      )
-      .to(
-        page_3_ref.current,
-        {
-          opacity: 0,
-          duration: 0.3,
-        },
-        3.2
-      )
-      .to(
-        camera.position,
-        {
+        timelinePoint: 3,
+      },
+      {
+        objectToAnimate: camera.position,
+        properties: {
           x: 0,
           y: 0,
           z: 8.5,
           duration: 0.8,
         },
-        3
-      )
-      .to(
-        camera,
-        {
+        timelinePoint: 3,
+      },
+      {
+        objectToAnimate: camera,
+        propertines: {
           zoom: 2.5,
           duration: 0.8,
           onUpdate: () => {
             camera.updateProjectionMatrix();
           },
         },
-        3
-      )
-      .to(
-        generalGroup.current.rotation,
-        {
+        timelinePoint: 3,
+      },
+      // General groups
+      {
+        objectToAnimate: generalGroup.current.rotation,
+        properties: {
           x: 0,
           y: 1.59699,
           z: -0.63054,
           duration: 0.8,
         },
-        3
-      )
-      .to(
-        page_4_ref.current,
-        {
-          opacity: 1,
-          duration: 0.6,
-        },
-        3.2
-      )
-      .to(
-        coverLeftRef.current.material,
-        {
+        timelinePoint: 3,
+      },
+
+      // Battery cover
+      {
+        objectToAnimate: coverLeftRef.current.material,
+        properties: {
           opacity: 0,
           transparent: true,
           duration: 0.4,
         },
-        3.3
-      );
+        timelinePoint: 3.3,
+      },
+    ];
+    AnimationsData = [
+      ...AnimationsData,
+      ...BatteryAnimations,
+    ];
 
-    //Forth animation - Construction
-    timeline.current
-      .to(
-        coverLeftRef.current.material,
-        {
-          opacity: 1,
-          transparent: true,
-          duration: 0.8,
-        },
-        4.3
-      )
-      .to(
-        page_4_ref.current,
-        {
+    // fourth animation - Construction
+    const ConstructionAnimations = [
+      // Reset previous animations
+      {
+        objectToAnimate: page_4_ref.current,
+        properties: {
           opacity: 0,
           duration: 0.3,
         },
-        4.1
-      )
-      .to(
-        controls.current.target,
-        {
+        timelinePoint: 4.1,
+      },
+      {
+        objectToAnimate: coverLeftRef.current.material,
+        properties: {
+          opacity: 1,
+          transparent: false,
+          duration: 0.8,
+        },
+        timelinePoint: 4.3,
+      },
+
+      // Html div
+      {
+        objectToAnimate: page_5_ref.current,
+        properties: {
+          opacity: 1,
+          duration: 0.8,
+        },
+        timelinePoint: 4.6,
+      },
+
+      // Controls, Camera and Camera Zoom
+      {
+        objectToAnimate: controls.current.target,
+        properties: {
           x: 4.4156,
           y: -1.996,
           z: 0,
           duration: 0.8,
         },
-        4
-      )
-      .to(
-        camera.position,
-        {
+        timelinePoint: 4,
+      },
+      {
+        objectToAnimate: camera.position,
+        properties: {
           x: 4.1873,
           y: 0,
           z: 8.2999,
           duration: 0.8,
         },
-        4
-      )
-      .to(
-        camera,
-        {
+        timelinePoint: 4,
+      },
+      {
+        objectToAnimate: camera,
+        properties: {
           zoom: 1.2517,
           duration: 0.8,
           onUpdate: () => {
             camera.updateProjectionMatrix();
           },
         },
-        4.3
-      )
-      .to(
-        generalGroup.current.rotation,
-        {
+        timelinePoint: 4.3,
+      },
+
+      // General group
+      {
+        objectToAnimate: generalGroup.current.rotation,
+        properties: {
           x: 0.21692,
           y: -0.52559,
           z: 0.21692,
           duration: 0.8,
         },
-        4.3
-      )
-      .to(
-        rightTapRef.current.position,
-        {
+        timelinePoint: 4.3,
+      },
+
+      // Inside headphones
+      {
+        objectToAnimate: rightCoverRef.current.position,
+        properties: {
           x: 4.33,
           y: -0.89,
           z: 0,
           duration: 0.8,
         },
-        4.8
-      )
-      .to(
-        innerTapRef.current.position,
-        {
+        timelinePoint: 4.8,
+      },
+      {
+        objectToAnimate:
+          rightCoverInnerRef.current.position,
+        properties: {
           x: 2.96,
           y: -0.59,
           z: 0,
           duration: 0.8,
         },
-        4.8
-      )
-      .to(
-        inside1Ref.current.position,
-        {
+        timelinePoint: 4.8,
+      },
+      {
+        objectToAnimate: inside1Ref.current.position,
+        properties: {
           x: 1.78,
           y: -0.4,
           z: 0,
           duration: 0.8,
         },
-        4.8
-      )
-      .to(
-        page_5_ref.current,
-        {
-          opacity: 1,
-          duration: 0.3,
-        },
-        4.6
-      )
-      .to(
-        inside2Ref.current.position,
-        {
+        timelinePoint: 4.8,
+      },
+      {
+        objectToAnimate: inside2Ref.current.position,
+        properties: {
           x: 0.99,
           y: -0.2,
           z: 0,
           duration: 0.8,
         },
-        4.8
-      );
+        timelinePoint: 4.8,
+      },
+    ];
+    AnimationsData = [
+      ...AnimationsData,
+      ...ConstructionAnimations,
+    ];
 
-    // Fifth animation - Logo
-    timeline.current
-      .to(
-        innerTapRef.current.position,
-        {
-          x: 0,
-          y: 0,
-          z: 0,
-          duration: 0.8,
-        },
-        5.6
-      )
-      .to(
-        rightTapRef.current.position,
-        {
-          x: 0,
-          y: 0,
-          z: 0,
-          duration: 0.8,
-        },
-        5.6
-      )
-      .to(
-        page_5_ref.current,
-        {
+    // Fifth Animations - Brand Logo
+    const BrandLogoAnimations = [
+      // Reset previous animations
+      // Html div
+      {
+        objectToAnimate: page_5_ref.current,
+        properties: {
           opacity: 0,
           duration: 0.3,
         },
-        5.8
-      )
-      .to(
-        inside1Ref.current.position,
-        {
+        timelinePoint: 5.8,
+      },
+
+      // Animations
+      {
+        objectToAnimate: rightCoverRef.current.position,
+        properties: {
           x: 0,
           y: 0,
           z: 0,
           duration: 0.8,
         },
-        5.6
-      )
-      .to(
-        inside2Ref.current.position,
-        {
+        timelinePoint: 5.6,
+      },
+      {
+        objectToAnimate:
+          rightCoverInnerRef.current.position,
+        properties: {
           x: 0,
           y: 0,
           z: 0,
           duration: 0.8,
         },
-        5.6
-      )
-      .to(
-        controls.current.target,
-        {
+        timelinePoint: 5.6,
+      },
+      {
+        objectToAnimate: inside1Ref.current.position,
+        properties: {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.8,
+        },
+        timelinePoint: 5.6,
+      },
+      {
+        objectToAnimate: inside2Ref.current.position,
+        properties: {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.8,
+        },
+        timelinePoint: 5.6,
+      },
+
+      // Current Animations
+      // Html div
+      {
+        objectToAnimate: page_6_ref.current,
+        properties: {
+          opacity: 1,
+          duration: 0.8,
+        },
+        timelinePoint: 6.2,
+      },
+      // Controls, Camera, Camera zoom
+      {
+        objectToAnimate: controls.current.target,
+        properties: {
           x: -1.8,
           y: 1.10198,
           z: 0,
           duration: 0.8,
         },
-        5.5
-      )
-      .to(
-        camera.position,
-        {
-          x: 0,
-          y: 0,
-          z: 8.3,
-          duration: 0.8,
-        },
-        5.5
-      )
-      .to(
-        camera,
-        {
+        timelinePoint: 5.5,
+      },
+      {
+        objectToAnimate: camera,
+        properties: {
           zoom: 1.8,
           duration: 0.8,
           onUpdate: () => {
             camera.updateProjectionMatrix();
           },
         },
-        5.8
-      )
-      .to(
-        generalGroup.current.rotation,
-        {
+        timelinePoint: 5.8,
+      },
+      {
+        objectToAnimate: camera.position,
+        properties: {
+          x: 0,
+          y: 0,
+          z: 8.3,
+          duration: 0.8,
+        },
+        timelinePoint: 5.5,
+      },
+      //General group
+      {
+        objectToAnimate: generalGroup.current.rotation,
+        properties: {
           x: 0,
           y: 1.30195,
           z: 0,
           duration: 0.8,
         },
-        5.9
-      )
-      .to(
-        page_6_ref.current,
-        {
-          opacity: 1,
-          duration: 0.3,
-        },
-        6.2
+        timelinePoint: 5.9,
+      },
+    ];
+    AnimationsData = [
+      ...AnimationsData,
+      ...BrandLogoAnimations,
+    ];
+
+    AnimationsData.map((animation) => {
+      scrollTimeline.addAnimation(
+        animation.objectToAnimate,
+        animation.properties,
+        animation.timelinePoint
       );
+    });
   }, []);
 
   useFrame(() => {
-    timeline.current.seek(
-      scroll.offset * timeline.current.duration()
-    );
+    scrollTimeline
+      .getTimeline()
+      .seek(
+        scrollControls.offset *
+          scrollTimeline.getTimeline().duration()
+      );
   });
 
   return (
     <>
       <group {...props} dispose={null} ref={generalGroup}>
         <mesh
-          name='Pad_Left'
+          name='Battery'
           castShadow
           receiveShadow
-          geometry={nodes.Pad_Left.geometry}
-          material={materials.Dark_Fabric}
+          geometry={nodes.Battery.geometry}
+          material={nodes.Battery.material}
         />
         <mesh
-          name='Horns'
+          name='Neon'
           castShadow
           receiveShadow
-          geometry={nodes.Horns.geometry}
-          material={materials.Dark_Plastic}
+          geometry={nodes.Neon.geometry}
+          material={materials.Material}
         />
         <mesh
-          name='Cover_Left'
+          name='Sounds'
           castShadow
           receiveShadow
-          geometry={nodes.Cover_Left.geometry}
-          material={materials.Dark_Plastic_Cover_Left}
-          ref={coverLeftRef}
+          geometry={nodes.Sounds.geometry}
+          material={materials.Orange_Plastic}
         />
         <mesh
-          name='Diadema_Inner'
+          name='Cylinders'
           castShadow
           receiveShadow
-          geometry={nodes.Diadema_Inner.geometry}
-          material={materials.Dark_Fabric}
+          geometry={nodes.Cylinders.geometry}
+          material={materials.ArticsMaterial}
         />
         <mesh
-          name='SoundControl'
+          name='Pads'
           castShadow
           receiveShadow
-          geometry={nodes.SoundControl.geometry}
-          material={materials.Grey_plastic}
+          geometry={nodes.Pads.geometry}
+          material={materials.ArticsMaterial}
+        />
+        <mesh
+          name='Supports'
+          castShadow
+          receiveShadow
+          geometry={nodes.Supports.geometry}
+          material={materials.ArticsMaterial}
+        />
+        <mesh
+          name='Cover_Right'
+          castShadow
+          receiveShadow
+          geometry={nodes.Cover_Right.geometry}
+          material={materials.ArticsMaterial}
+          ref={rightCoverRef}
+        />
+        <mesh
+          name='Brand'
+          castShadow
+          receiveShadow
+          geometry={nodes.Brand.geometry}
+          material={materials.ArticsMaterial}
+        />
+        <mesh
+          name='Headband_Inner'
+          castShadow
+          receiveShadow
+          geometry={nodes.Headband_Inner.geometry}
+          material={materials.ArticsMaterial}
         />
         <mesh
           name='Inside_1'
           castShadow
           receiveShadow
           geometry={nodes.Inside_1.geometry}
-          material={materials.Orange_Plastic}
+          material={materials.Blue_Metallic}
+          position={[0.01, 0, 0]}
           ref={inside1Ref}
-        />
-        <mesh
-          name='Cover_Rght_tap'
-          castShadow
-          receiveShadow
-          geometry={nodes.Cover_Rght_tap.geometry}
-          material={materials.Dark_Plastic}
-          ref={innerTapRef}
-        />
-        <mesh
-          name='Diadema_Top_2'
-          castShadow
-          receiveShadow
-          geometry={nodes.Diadema_Top_2.geometry}
-          material={materials.Gold_Metallic_Diadema}
-          ref={diademaTop2Ref}
-        />
-        <mesh
-          name='Diadema_Top_1'
-          castShadow
-          receiveShadow
-          geometry={nodes.Diadema_Top_1.geometry}
-          material={materials.Dark_Plastic_Diadema}
-          ref={diademaTop1Ref}
-        />
-        <mesh
-          name='Horn_Right'
-          castShadow
-          receiveShadow
-          geometry={nodes.Horn_Right.geometry}
-          material={materials.Dark_Plastic}
-          ref={hornRightRef}
         />
         <mesh
           name='Inside_2'
           castShadow
           receiveShadow
           geometry={nodes.Inside_2.geometry}
-          material={materials.Blue_Metallic}
+          material={materials.Orage_Mertallic}
+          position={[0.01, 0, 0]}
           ref={inside2Ref}
         />
         <mesh
-          name='Supports_1'
+          name='Battery_Holder'
           castShadow
           receiveShadow
-          geometry={nodes.Supports_1.geometry}
-          material={materials.Dark_Plastic}
+          geometry={nodes.Battery_Holder.geometry}
+          material={materials.ArticsMaterial}
+          position={[0, 0.01, 0]}
         />
         <mesh
-          name='Supports_2'
+          name='Cover_Left_Inn'
           castShadow
           receiveShadow
-          geometry={nodes.Supports_2.geometry}
-          material={materials.Gold_Metallic}
+          geometry={nodes.Cover_Left_Inn.geometry}
+          material={materials.ArticsMaterial}
+          position={[0, 0.01, 0]}
         />
         <mesh
-          name='Microphone'
+          name='Cover_Right_Inn'
           castShadow
           receiveShadow
-          geometry={nodes.Microphone.geometry}
-          material={materials.Grey_plastic}
+          geometry={nodes.Cover_Right_Inn.geometry}
+          material={materials.ArticsMaterial}
+          position={[0, 0.01, 0]}
+          ref={rightCoverInnerRef}
         />
         <mesh
-          name='Sticker'
+          name='Headband_outter'
           castShadow
           receiveShadow
-          geometry={nodes.Sticker.geometry}
-          material={materials.Dark_Fabric}
+          geometry={nodes.Headband_outter.geometry}
+          material={materials.ArticsMaterial_Headband}
+          ref={headbandRef}
         />
         <mesh
-          name='Bat'
+          name='Cover_Left'
           castShadow
           receiveShadow
-          geometry={nodes.Bat.geometry}
-          material={materials.Orange_Plastic}
-        />
-        <mesh
-          name='Cover_Rght'
-          castShadow
-          receiveShadow
-          geometry={nodes.Cover_Rght.geometry}
-          material={materials.Dark_Plastic}
-          ref={rightTapRef}
-        />
-        <mesh
-          name='Pad_Right'
-          castShadow
-          receiveShadow
-          geometry={nodes.Pad_Right.geometry}
-          material={materials.Dark_Fabric}
-          ref={padRightRef}
+          geometry={nodes.Cover_Left.geometry}
+          material={materials.ArticsMaterial_CoverLeft}
+          ref={coverLeftRef}
         />
       </group>
 
