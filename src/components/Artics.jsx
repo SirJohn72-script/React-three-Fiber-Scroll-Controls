@@ -635,7 +635,15 @@ export function Artics(props) {
         />
       </group>
 
-      <OrbitControls enableZoom={false} ref={controls} />
+      <OrbitControls
+        enableZoom={false}
+        ref={controls}
+        enablePan={false}
+        minAzimuthAngle={-Math.PI / 12}
+        maxAzimuthAngle={Math.PI / 12}
+        minPolarAngle={Math.PI * 0.3}
+        maxPolarAngle={Math.PI * 0.35}
+      />
     </>
   );
 }
